@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "tb_product")
-public class Produtct implements Serializable {
+public class Product implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +28,10 @@ public class Produtct implements Serializable {
                 joinColumns = @JoinColumn(name = "product_id"),
                 inverseJoinColumns = @JoinColumn(name = "category_id"))
     private Set<Category> categories = new HashSet<>();
-    public Produtct() {
+    public Product() {
     }
 
-    public Produtct(Long id, String name, String description, Double price, String imgUrl, Instant date) {
+    public Product(Long id, String name, String description, Double price, String imgUrl, Instant date) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -95,9 +95,9 @@ public class Produtct implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Produtct produtct)) return false;
+        if (!(o instanceof Product product)) return false;
 
-        return Objects.equals(id, produtct.id);
+        return Objects.equals(id, product.id);
     }
 
     @Override
