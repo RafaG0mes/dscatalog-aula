@@ -46,7 +46,6 @@ public class ProdutctRepositoryTests {
 
     @Test
     public void findShouldfindObjectWhenIdExists(){
-//        repository.findById(existingId);
         Optional<Product>  result = repository.findById(existingId);
 
         Assertions.assertTrue(result.isPresent());
@@ -54,7 +53,6 @@ public class ProdutctRepositoryTests {
 
     @Test
     public void findShouldfindObjectWhenIdNotExists(){
-//        repository.findById(notExistingId);
         Optional<Product>  result = repository.findById(notExistingId);
 
         Assertions.assertTrue(result.isEmpty());
