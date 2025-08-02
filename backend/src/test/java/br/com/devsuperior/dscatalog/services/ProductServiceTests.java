@@ -8,6 +8,7 @@ import br.com.devsuperior.dscatalog.repositories.ProductRepository;
 import br.com.devsuperior.dscatalog.services.exceptions.DataBaseException;
 import br.com.devsuperior.dscatalog.services.exceptions.ResourceNotFoundException;
 import br.com.devsuperior.dscatalog.tests.Factory;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -54,20 +55,45 @@ public class ProductServiceTests {
         dependetId = 3L;
         category = Factory.createCategory();
         product = Factory.createProduct();
+        product.getCategories().add(category);
         productDTO = Factory.createProductDTO();
         page = new PageImpl<>(List.of(product));
 
+        // Simula o comportamento do repositório quando um ID existe.
+        // Retorna um Optional com o produto.
         Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));
+
+        // Simula o comportamento do repositório quando um ID não existe.
+        // Retorna um Optional vazio.
         Mockito.when(repository.findById(nonExistsId)).thenReturn(Optional.empty());
+
+        // Simula o comportamento do método 'save' do repositório.
+        // Para qualquer objeto Product que for passado, ele deve retornar o 'product' mockado.
         Mockito.when(repository.save(ArgumentMatchers.any())).thenReturn(product);
 
+        // Simula o comportamento do método 'getReferenceById' do repositório
+        // quando um ID existente é passado.
         Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
 
+        // Simula o comportamento do método 'getReferenceById' do CategoryRepository.
         Mockito.when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
+        
+        // agora lança a exceção correta (EntityNotFoundException) que o serviço espera.
+        Mockito.doThrow(EntityNotFoundException.class).when(repository).getReferenceById(nonExistsId);
 
+        // Simula o comportamento do método 'findAll' do repositório para paginação.
+        // Para qualquer objeto Pageable, retorna o objeto 'page' mockado.
         Mockito.when(repository.findAll((Pageable) ArgumentMatchers.any())).thenReturn(page);
+
+        // Simula o comportamento do método 'deleteById' do repositório
+        // quando um ID existente é passado, não fazendo nada.
         Mockito.doNothing().when(repository).deleteById(existingId);
+
+        // Simula o comportamento do método 'deleteById' quando um ID dependente é passado,
+        // lançando uma exceção de violação de integridade de dados.
         Mockito.doThrow(DataIntegrityViolationException.class).when(repository).deleteById(dependetId);
+
+        // Simula o comportamento do método 'existsById' para IDs que existem, não existem e são dependentes.
         Mockito.when(repository.existsById(existingId)).thenReturn(true);
         Mockito.when(repository.existsById(nonExistsId)).thenReturn(false);
         Mockito.when(repository.existsById(dependetId)).thenReturn(true);
@@ -78,9 +104,17 @@ public class ProductServiceTests {
         ProductDTO result = service.update(existingId, productDTO);
         Assertions.assertNotNull(result);
 
-        Mockito.verify(repository, Mockito.times(1)).save(product);
+        Mockito.verify(repository, Mockito.times(1)).save(Mockito.any(Product.class));
 
     }
+
+    @Test
+    public void updateShouldResourceNotFoundExceptionWhenIdNotExists(){
+        Assertions.assertThrows(ResourceNotFoundException.class, ()-> {
+            service.update(nonExistsId, productDTO);
+        });
+    }
+
     @Test
     public void findByIdShouldResourceNotFoundExceptionWhenIdNotExists(){
         Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findById(nonExistsId));
