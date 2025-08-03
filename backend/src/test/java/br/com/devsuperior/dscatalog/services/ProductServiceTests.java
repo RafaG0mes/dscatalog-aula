@@ -24,7 +24,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,7 +76,7 @@ public class ProductServiceTests {
 
         // Simula o comportamento do método 'getReferenceById' do CategoryRepository.
         Mockito.when(categoryRepository.getReferenceById(existingId)).thenReturn(category);
-        
+
         // agora lança a exceção correta (EntityNotFoundException) que o serviço espera.
         Mockito.doThrow(EntityNotFoundException.class).when(repository).getReferenceById(nonExistsId);
 
