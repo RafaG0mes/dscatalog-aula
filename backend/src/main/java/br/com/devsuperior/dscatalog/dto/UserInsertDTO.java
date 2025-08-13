@@ -1,5 +1,8 @@
 package br.com.devsuperior.dscatalog.dto;
 
+import br.com.devsuperior.dscatalog.services.validation.UserInsertValid;
+
+@UserInsertValid
 public class UserInsertDTO extends UserDTO{
 
     private String password;
